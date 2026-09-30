@@ -1,0 +1,39 @@
+name: Orrery
+description: Draw a GitHub profile as an animated SVG solar system of its public repositories.
+author: Nhaajt
+branding:
+  icon: globe
+  color: green
+
+inputs:
+  username:
+    description: GitHub username to render. Defaults to the owner of the repository running the workflow.
+    required: false
+    default: ${{ github.repository_owner }}
+  output:
+    description: Path of the SVG file to write, relative to the workspace.
+    required: false
+    default: orrery.svg
+  token:
+    description: Token used to read the public GitHub API. The default workflow token is enough.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  path:
+    description: Path of the SVG that was written.
+    value: ${{ steps.render.outputs.path }}
+  planets:
+    description: Number of repositories drawn as planets.
+    value: ${{ steps.render.outputs.planets }}
+
+runs:
+  using: composite
+  steps:
+    - id: render
+      shell: bash
+      run: node "${{ github.action_path }}/action/render.mjs"
+      env:
+        INPUT_USERNAME: ${{ inputs.username }}
+        INPUT_OUTPUT: ${{ inputs.output }}
+        INPUT_TOKEN: ${{ inputs.token }}

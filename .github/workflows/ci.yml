@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Render the SVG with the local action
+        uses: ./
+        with:
+          username: ${{ github.repository_owner }}
+          output: out/orrery.svg
+      - name: Check the SVG
+        run: |
+          test -s out/orrery.svg
+          grep -q "<svg" out/orrery.svg

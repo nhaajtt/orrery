@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orrery | GitHub profiles in orbit</title>
+  <meta name="description" content="Look up any GitHub username and see public repositories as planets, languages as color and recent activity as a pulse. Compare two people side by side." />
+  <meta name="theme-color" content="#05070f" />
+  <meta property="og:title" content="Orrery | GitHub profiles in orbit" />
+  <meta property="og:description" content="Public repositories as planets. Languages as color. Compare two GitHub profiles." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="/fonts/bricolage-grotesque-300-800-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('orrery-theme');
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#lookup">Skip to lookup</a>
+
+  <header class="nav" data-nav>
+    <a class="brand" href="#top" aria-label="Orrery, back to top"><span class="brand-mark" aria-hidden="true"></span>Orrery</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#system" data-scramble>Planets</a>
+      <a href="#spectrum" data-scramble>Spectrum</a>
+      <a href="#pulse" data-scramble>Pulse</a>
+      <a href="#duel" data-scramble>Duel</a>
+    </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme"><span data-theme-label>Light</span></button>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" data-hero aria-labelledby="hero-title">
+      <canvas class="hero-canvas" data-hero-canvas aria-hidden="true"></canvas>
+      <div class="hero-copy">
+        <h1 id="hero-title" class="hero-title" data-hero-title>GitHub, in orbit.</h1>
+        <p class="hero-sub">Type a username. Public repos become planets, languages become color, recent pushes pull them closer.</p>
+        <form class="lookup" id="lookup" data-lookup novalidate>
+          <label class="field">
+            <span class="field-label">GitHub username</span>
+            <input name="a" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" required />
+          </label>
+          <label class="field">
+            <span class="field-label">Versus (optional)</span>
+            <input name="b" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" placeholder="another username" />
+          </label>
+          <button class="btn" type="submit" data-launch>Launch</button>
+        </form>
+        <p class="status" role="status" aria-live="polite" data-status></p>
+      </div>
+    </section>
+
+    <!-- Planets: pinned scene -->
+    <section class="system" id="system" data-system aria-labelledby="system-title">
+      <div class="system-pin" data-system-pin>
+        <div class="system-stage">
+          <canvas class="system-canvas" data-system-canvas aria-hidden="true"></canvas>
+          <p class="hover-tip" data-hover-tip hidden></p>
+        </div>
+        <div class="system-panel">
+          <h2 id="system-title" class="title" data-title data-text="Planets">Planets</h2>
+          <div class="who" data-who></div>
+          <article class="repo" data-repo aria-live="polite">
+            <h3 class="repo-name" data-repo-name></h3>
+            <p class="repo-desc" data-repo-desc></p>
+            <dl class="repo-facts" data-repo-facts></dl>
+          </article>
+          <ul class="repo-list" data-repo-list aria-label="Top repositories"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spectrum -->
+    <section class="spectrum" id="spectrum" data-spectrum aria-labelledby="spectrum-title">
+      <div class="wrap">
+        <h2 id="spectrum-title" class="title title-xl" data-title data-text="Spectrum">Spectrum</h2>
+        <p class="lede" data-spectrum-lede></p>
+        <div class="band" data-band role="img" aria-label="Language share"></div>
+        <ul class="legend" data-legend></ul>
+      </div>
+    </section>
+
+    <!-- Pulse -->
+    <section class="pulse" id="pulse" data-pulse aria-labelledby="pulse-title">
+      <div class="wrap pulse-grid">
+        <div class="pulse-head">
+          <h2 id="pulse-title" class="title title-xl" data-title data-text="Pulse">Pulse</h2>
+          <p class="lede" data-pulse-lede></p>
+        </div>
+        <div class="pulse-body">
+          <div class="heat" data-heat role="img" aria-label="Public activity heatmap, last 90 days"></div>
+          <dl class="stats" data-stats></dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Duel -->
+    <section class="duel" id="duel" data-duel aria-labelledby="duel-title">
+      <div class="wrap">
+        <h2 id="duel-title" class="title title-xl" data-title data-text="Duel">Duel</h2>
+        <div class="duel-empty" data-duel-empty hidden>
+          <p class="lede">Add a second username and both systems go head to head.</p>
+          <form class="rival" data-rival novalidate>
+            <label class="field">
+              <span class="field-label">Rival username</span>
+              <input name="b" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" required />
+            </label>
+            <button class="btn" type="submit">Compare</button>
+          </form>
+        </div>
+        <div class="duel-board" data-duel-board hidden>
+          <div class="duel-heads">
+            <div class="duel-head" data-duel-head="a"></div>
+            <div class="duel-head" data-duel-head="b"></div>
+          </div>
+          <div class="duel-orbits">
+            <canvas class="duel-canvas" data-duel-canvas="a" aria-hidden="true"></canvas>
+            <canvas class="duel-canvas" data-duel-canvas="b" aria-hidden="true"></canvas>
+          </div>
+          <div class="duel-rows" data-duel-rows></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-word" aria-hidden="true">ORRERY</div>
+    <div class="wrap foot-row">
+      <p class="foot-credit">Built by <strong>Nhaajt</strong>. Find the rest of my work at <a href="https://github.com/nhaajtt" rel="noopener">github.com/nhaajtt</a>.</p>
+      <p class="foot-note">Data comes from the GitHub public REST API. Only public repositories and public events are read, so private work never appears. Orrery is an independent tool and is not affiliated with GitHub.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
