@@ -1,5 +1,11 @@
 # Orrery
 
+[![CI](https://github.com/nhaajtt/orrery/actions/workflows/ci.yml/badge.svg)](https://github.com/nhaajtt/orrery/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/nhaajtt/orrery/actions/workflows/codeql.yml/badge.svg)](https://github.com/nhaajtt/orrery/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+![Orrery drawing sindresorhus as an orrery on a blue cyanotype sheet](docs/hero.png)
+
 Look up any GitHub username and see the public repositories drawn as an orrery on a cyanotype sheet.
 Recent pushes orbit closer to the sun, size follows stars and repo size, and each language has its own
 fill symbol, like the materials on a technical drawing. Add a second username to compare two profiles.
@@ -11,6 +17,21 @@ This repository holds two things:
 1. **The website** (Vite, GSAP, Lenis, canvas). Lookup, a pinned planet tour, language spectrum, activity
    pulse and a two-person duel.
 2. **A GitHub Action** that renders the same idea as an animated SVG you can put in a profile README.
+
+## Screenshots
+
+**Pinned planet tour.** Scrolling steps through the top repositories. The camera moves to each planet and a
+dimension line shows how recently it was pushed.
+
+![Planet tour with a dimension line to the focused repository](docs/planets.png)
+
+**Duel.** Two profiles drawn side by side, compared on dimension lines.
+
+![Two orreries side by side with dimension line comparisons](docs/duel.png)
+
+**Light print.** The same sheet as a negative: white paper, blue ink.
+
+![Light theme of the hero](docs/hero-light.png)
 
 ## Use the Action
 
