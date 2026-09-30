@@ -1,8 +1,8 @@
 # Orrery
 
-Look up any GitHub username and see the public repositories as planets. Recent pushes orbit closer to the
-sun, size follows stars and repo size, color follows the language. Add a second username to compare two
-profiles side by side.
+Look up any GitHub username and see the public repositories drawn as an orrery on a cyanotype sheet.
+Recent pushes orbit closer to the sun, size follows stars and repo size, and each language has its own
+fill symbol, like the materials on a technical drawing. Add a second username to compare two profiles.
 
 **Live site:** https://orbit-gh.vercel.app
 
@@ -53,7 +53,8 @@ Then reference it from your README:
 | `output` | `orrery.svg` | file to write |
 | `token` | `github.token` | token for the public API |
 
-The SVG follows the viewer's light or dark preference and animates without JavaScript.
+The SVG is a drawing sheet with a parts list, and it follows the viewer's light or dark preference and
+animates without JavaScript.
 
 ## Run the site locally
 

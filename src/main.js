@@ -3,8 +3,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import './style.css';
 import { fetchProfile, USER_RE } from './data.js';
-import { Orrery, langColor } from './orrery.js';
-import { splitLetters, initLean, initScramble } from './text-fx.js';
+import { Orrery } from './orrery.js';
+import { SYMBOLS, symbolFor, svgDefs, svgSymbol } from '../lib/palette.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +13,6 @@ const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const desktopMQ = matchMedia('(min-width: 961px)');
 const html = document.documentElement;
-if (reduced) html.classList.add('no-motion');
 
 const DEFAULTS = { a: 'sindresorhus', b: 'torvalds' };
 const state = { a: null, b: null, seq: 0, active: 0, top: [], pin: null };
@@ -29,6 +28,14 @@ function ago(iso) {
   return `${Math.floor(days / 365)} y ago`;
 }
 const shortDate = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+const starsLabel = (...ps) => (ps.some((p) => p.stats.partial) ? 'Stars, 300 latest repos' : 'Stars earned');
+const size = (kb) => (kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`);
+const el = (tag, cls, text) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+};
 function windowStats(p, from) {
   let events = 0, active = 0, streak = 0, run = 0;
   for (const d of p.days) {
@@ -40,14 +47,18 @@ function windowStats(p, from) {
   }
   return { events, active, streak };
 }
-const starsLabel = (...ps) => (ps.some((p) => p.stats.partial) ? 'Stars, 300 latest repos' : 'Stars earned');
-const size = (kb) => (kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`);
-const el = (tag, cls, text) => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (text != null) n.textContent = text;
-  return n;
+const symbolSvg = (index, px = 22) => {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('width', px);
+  s.setAttribute('height', px);
+  s.setAttribute('viewBox', '0 0 22 22');
+  s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = svgSymbol(index, 11, 11, 8.5, { ink: 'var(--ink)' });
+  return s;
 };
+
+/* ---------- shared drawing defs (hatch patterns) ---------- */
+$('[data-defs]').innerHTML = `<defs>${svgDefs('var(--ink)')}</defs>`;
 
 /* ---------- smooth scroll (the only scroll engine) ---------- */
 let lenis = null;
@@ -74,9 +85,9 @@ $$('a[href^="#"]').forEach((a) => {
 const themeBtn = $('[data-theme-toggle]');
 function syncThemeUi() {
   const dark = html.dataset.theme !== 'light';
-  $('[data-theme-label]').textContent = dark ? 'Light' : 'Dark';
-  themeBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-  $('meta[name="theme-color"]').setAttribute('content', dark ? '#05070f' : '#edf0f6');
+  $('[data-theme-label]').textContent = dark ? 'Light print' : 'Dark print';
+  themeBtn.setAttribute('aria-label', dark ? 'Switch to the light print' : 'Switch to the dark print');
+  $('meta[name="theme-color"]').setAttribute('content', dark ? '#0d2f6b' : '#f4f7fb');
 }
 themeBtn.addEventListener('click', () => {
   html.dataset.theme = html.dataset.theme === 'light' ? 'dark' : 'light';
@@ -88,23 +99,14 @@ themeBtn.addEventListener('click', () => {
 });
 syncThemeUi();
 
-/* ---------- hero text ---------- */
-const heroTitle = $('[data-hero-title]');
-const heroLetters = splitLetters(heroTitle, { markWord: 'orbit' });
-if (!reduced) {
-  gsap.from(heroLetters, { yPercent: 115, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: 0.035, delay: 0.15 });
-  gsap.from('.hero-sub, .lookup, .status', { y: 24, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.12, delay: 0.7 });
-  initLean(heroLetters, $('[data-hero]'));
-  initScramble($$('[data-scramble]'));
-}
-
 /* ---------- canvases ---------- */
-const heroOrrery = new Orrery($('[data-hero-canvas]'), { reduced, center: [0.7, 0.5], scale: 0.42 });
+const heroOrrery = new Orrery($('[data-hero-canvas]'), { reduced, scale: 0.36, callouts: 3 });
 const tip = $('[data-hover-tip]');
 const systemOrrery = new Orrery($('[data-system-canvas]'), {
   reduced,
   interactive: true,
-  scale: 0.4,
+  scale: 0.36,
+  dimLabel: (p) => `pushed ${ago(p.repo.pushed)}`,
   onHover: (i, pos) => {
     if (i < 0 || !pos) {
       tip.hidden = true;
@@ -116,12 +118,14 @@ const systemOrrery = new Orrery($('[data-system-canvas]'), {
     tip.hidden = false;
   },
 });
-const duelA = new Orrery($('[data-duel-canvas="a"]'), { reduced, scale: 0.44 });
-const duelB = new Orrery($('[data-duel-canvas="b"]'), { reduced, scale: 0.44 });
+const duelA = new Orrery($('[data-duel-canvas="a"]'), { reduced, scale: 0.42, center: [0.5, 0.52] });
+const duelB = new Orrery($('[data-duel-canvas="b"]'), { reduced, scale: 0.42, center: [0.5, 0.52] });
 
 const placeHero = () => {
   const short = matchMedia('(max-height: 520px) and (orientation: landscape)').matches;
-  heroOrrery.opts.center = short ? [0.8, 0.5] : desktopMQ.matches ? [0.7, 0.5] : [0.5, 0.3];
+  heroOrrery.opts.center = short ? [0.8, 0.5] : desktopMQ.matches ? [0.72, 0.5] : [0.5, 0.3];
+  // Callout labels only go where they do not run under the headline.
+  heroOrrery.opts.callMinX = desktopMQ.matches && !short ? Math.min(760, innerWidth * 0.52) : 1e9;
 };
 placeHero();
 const relayout = () => {
@@ -172,11 +176,13 @@ function renderSystem(p) {
   text.append(el('p', 'who-name', p.user.name), el('p', 'who-meta', `@${p.user.login}, ${fmt(p.user.followers)} followers`));
   who.append(img, text);
 
-  systemOrrery.setData(p.repos);
-  // The stepped list: own repos by stars, then recency. Forks only when there is nothing else.
   const own = p.repos.filter((r) => !r.fork);
   const pool = own.length ? own : p.repos;
   state.top = [...pool].sort((a, b) => b.stars - a.stars || new Date(b.pushed) - new Date(a.pushed)).slice(0, 6);
+  // Every repo in the tour must exist as a planet, so add the tour repos to the most recent ones.
+  const chosen = new Set(state.top.map((r) => r.name));
+  const rest = p.repos.filter((r) => !chosen.has(r.name)).slice(0, 28 - state.top.length);
+  systemOrrery.setData([...state.top, ...rest].sort((a, b) => new Date(b.pushed) - new Date(a.pushed)));
   const list = $('[data-repo-list]');
   list.replaceChildren();
   state.top.forEach((r, i) => {
@@ -187,44 +193,38 @@ function renderSystem(p) {
     li.append(b);
     list.append(li);
   });
-  if (state.top.length) setActive(0, true);
+  if (state.top.length) setActive(0);
   else {
     $('[data-repo-name]').textContent = 'No public repositories yet';
-    $('[data-repo-desc]').textContent = 'Once this account publishes a repository it will appear here as a planet.';
+    $('[data-repo-desc]').textContent = 'When this account publishes a repository it is drawn here as a planet.';
     $('[data-repo-facts]').replaceChildren();
   }
 }
 
-function setActive(i, instant = false) {
+function setActive(i) {
   const r = state.top[i];
   if (!r) return;
   state.active = i;
   $$('[data-repo-list] button').forEach((b, k) => (k === i ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current')));
-  const nameEl = $('[data-repo-name]');
-  nameEl.textContent = r.name;
-  const letters = splitLetters(nameEl);
-  if (!reduced && !instant) gsap.from(letters, { yPercent: 100, opacity: 0, duration: 0.55, ease: 'expo.out', stagger: 0.022 });
+  $('[data-repo-name]').textContent = r.name;
   $('[data-repo-desc]').textContent = r.desc || 'No description.';
-  const color = langColor(r.lang);
-  $('[data-system-pin]').style.setProperty('--c1', color);
   const facts = $('[data-repo-facts]');
   facts.replaceChildren();
-  const add = (k, v, swatch) => {
+  const add = (k, v, sym) => {
     const d = el('div');
     const dd = el('dd');
-    if (swatch) dd.append(el('span', 'swatch'));
+    if (sym != null) dd.append(symbolSvg(sym, 20));
     dd.append(document.createTextNode(v));
     d.append(el('dt', '', k), dd);
     facts.append(d);
   };
-  add('Language', r.lang || 'Not detected', true);
+  add('Language', r.lang || 'Not detected', symbolFor(r.lang));
   add('Stars', fmt(r.stars));
   add('Forks', fmt(r.forks));
   add('Last push', ago(r.pushed));
   add('Size', size(r.size));
   add('Kind', r.archived ? 'Archived' : r.fork ? 'Fork' : 'Own repo');
-  const idx = systemOrrery.planets.findIndex((p) => p.repo.name === r.name);
-  systemOrrery.setFocus(idx);
+  systemOrrery.setFocus(systemOrrery.planets.findIndex((p) => p.repo.name === r.name));
 }
 
 function jumpTo(i) {
@@ -248,20 +248,22 @@ function renderSpectrum(p) {
   }
   band.style.display = '';
   const top = langs[0];
-  lede.textContent = `${p.user.login} leans on ${top.name}, about ${Math.round(top.share * 100)} percent. Each repo counts once by its primary language, weighted by repo size.`;
+  lede.textContent = `${p.user.login} leans on ${top.name}, about ${Math.round(top.share * 100)} percent. Each repo counts once by its main language, weighted by repo size.`;
+  band.setAttribute('role', 'img');
   band.setAttribute('aria-label', `Language share: ${langs.map((l) => `${l.name} ${Math.round(l.share * 100)} percent`).join(', ')}`);
+  const strip = el('div', 'band-strip');
+  strip.style.cssText = 'display:flex;height:clamp(64px,9vw,104px)';
   for (const l of langs) {
-    const col = langColor(l.name);
-    const seg = el('span');
-    seg.style.setProperty('--share', String(l.share));
-    seg.style.setProperty('--col', col);
-    band.append(seg);
+    const idx = symbolFor(l.name === 'Other' ? null : l.name);
+    const seg = el('span', `seg seg-${SYMBOLS[idx]}`);
+    seg.style.flex = `${l.share} 1 0`;
+    seg.style.minWidth = '4px';
+    strip.append(seg);
     const li = el('li');
-    const dot = el('i');
-    dot.style.setProperty('--col', col);
-    li.append(dot, document.createTextNode(l.name), el('b', '', `${(l.share * 100).toFixed(l.share < 0.1 ? 1 : 0)}%`));
+    li.append(symbolSvg(idx, 26), document.createTextNode(l.name), el('b', '', `${(l.share * 100).toFixed(l.share < 0.1 ? 1 : 0)}%`));
     legend.append(li);
   }
+  band.append(strip);
 }
 
 function renderPulse(p) {
@@ -352,13 +354,17 @@ function renderDuel() {
     const row = el('div', 'drow');
     const top = Math.max(a, b, 1);
     const mk = (v, other, cls) => {
-      const s = el('div', `side ${cls}${v > other ? ' win' : ''}`);
-      const n = el('span', 'num', fmt(v));
-      n.dataset.count = String(v);
-      const bar = el('i', 'bar');
-      bar.style.setProperty('--w', String(v / top));
-      s.append(n, bar);
-      if (v > other) s.append(el('span', 'sticker', 'ahead'));
+      const win = v > other;
+      const s = el('div', `side ${cls}${win ? ' win' : ''}`);
+      const n = el('span', 'num');
+      const val = el('span', '', fmt(v));
+      val.dataset.count = String(v);
+      n.append(val);
+      if (win) n.append(el('span', 'ahead', 'ahead'));
+      const dim = el('span', 'dim');
+      dim.style.setProperty('--w', String(v / top));
+      dim.append(el('i'));
+      s.append(n, dim);
       return s;
     };
     row.append(mk(a, b, 'a'), el('div', 'drow-label', label), mk(b, a, 'b'));
@@ -372,13 +378,6 @@ function buildScroll() {
   state.pin = null;
   if (reduced) return;
   scrollCtx = gsap.context(() => {
-    $$('[data-title]').forEach((t) => {
-      gsap.fromTo(t, { '--clip': '100%' }, {
-        '--clip': '0%', ease: 'none',
-        scrollTrigger: { trigger: t, start: 'top 88%', end: 'top 45%', scrub: true },
-      });
-    });
-
     if (desktopMQ.matches && state.top.length > 1) {
       state.pin = ScrollTrigger.create({
         trigger: '[data-system]',
@@ -394,18 +393,18 @@ function buildScroll() {
       });
     }
 
-    const band = $('[data-band]');
-    if (band && band.style.display !== 'none') {
-      gsap.fromTo(band, { '--clip': '100%' }, {
-        '--clip': '0%', ease: 'none',
-        scrollTrigger: { trigger: band, start: 'top 88%', end: 'top 50%', scrub: true },
+    const strip = $('.band-strip');
+    if (strip) {
+      gsap.fromTo(strip, { clipPath: 'inset(0 100% 0 0)' }, {
+        clipPath: 'inset(0 0% 0 0)', duration: 1.4, ease: 'power2.out',
+        scrollTrigger: { trigger: strip, start: 'top 88%', once: true },
       });
     }
 
     const cells = $$('[data-heat] i[data-l]');
     if (cells.length) {
       gsap.from(cells, {
-        scale: 0, opacity: 0, duration: 0.5, ease: 'back.out(2)', stagger: { each: 0.012, from: 'start' },
+        opacity: 0, duration: 0.4, ease: 'power1.out', stagger: { each: 0.01, from: 'start' },
         scrollTrigger: { trigger: '[data-heat]', start: 'top 80%', once: true },
       });
     }
@@ -421,16 +420,8 @@ function buildScroll() {
       });
     });
 
-    $$('.side .bar').forEach((b) => {
-      gsap.from(b, { scaleX: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: b, start: 'top 92%', once: true } });
-    });
-    $$('.sticker').forEach((s) => {
-      gsap.from(s, { scale: 0, rotate: 0, duration: 0.6, ease: 'back.out(3)', delay: 0.5, scrollTrigger: { trigger: s, start: 'top 92%', once: true } });
-    });
-
-    gsap.fromTo('.foot-word', { '--drift': '-7%' }, {
-      '--drift': '7%', ease: 'none',
-      scrollTrigger: { trigger: '.foot', start: 'top bottom', end: 'bottom bottom', scrub: true },
+    $$('.side .dim').forEach((d) => {
+      gsap.from(d, { scaleX: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: d, start: 'top 92%', once: true } });
     });
   });
   ScrollTrigger.refresh();
@@ -444,6 +435,12 @@ function renderAll() {
   renderPulse(p);
   renderDuel();
   buildScroll();
+  // The one orchestrated moment: the drawing is plotted, ring by ring.
+  if (reduced) heroOrrery.intro = 1;
+  else {
+    heroOrrery.intro = 0;
+    gsap.to(heroOrrery, { intro: 1, duration: 2.8, ease: 'power1.inOut' });
+  }
 }
 
 /* ---------- loading ---------- */
@@ -489,7 +486,7 @@ lookup.addEventListener('submit', (e) => {
 $('[data-rival]').addEventListener('submit', (e) => {
   e.preventDefault();
   const b = e.currentTarget.elements.b.value.trim().replace(/^@/, '');
-  if (!USER_RE.test(b)) return setStatus('The rival username is not valid: letters, numbers and hyphens only.', 'error');
+  if (!USER_RE.test(b)) return setStatus('The second username is not valid: letters, numbers and hyphens only.', 'error');
   lookup.elements.b.value = b;
   load(state.a.user.login, b);
 });

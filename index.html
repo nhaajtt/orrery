@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Orrery | GitHub profiles in orbit</title>
-  <meta name="description" content="Look up any GitHub username and see public repositories as planets, languages as color and recent activity as a pulse. Compare two people side by side." />
-  <meta name="theme-color" content="#05070f" />
-  <meta property="og:title" content="Orrery | GitHub profiles in orbit" />
-  <meta property="og:description" content="Public repositories as planets. Languages as color. Compare two GitHub profiles." />
+  <title>Orrery | GitHub profiles drawn as orreries</title>
+  <meta name="description" content="Look up any GitHub username and see the public repositories drawn as an orrery: recent pushes orbit closer, each language gets its own fill. Compare two people side by side." />
+  <meta name="theme-color" content="#0d2f6b" />
+  <meta property="og:title" content="Orrery | GitHub profiles drawn as orreries" />
+  <meta property="og:description" content="Public repositories drawn as planets on a technical drawing. Compare two GitHub profiles." />
   <meta property="og:type" content="website" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="preload" href="/fonts/bricolage-grotesque-300-800-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/sofia-sans-extra-condensed-500-900-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/sofia-sans-300-700-latin.woff2" as="font" type="font/woff2" crossorigin />
   <script>
     (function () {
       try {
@@ -25,39 +26,37 @@
   <a class="skip" href="#lookup">Skip to lookup</a>
 
   <header class="nav" data-nav>
-    <a class="brand" href="#top" aria-label="Orrery, back to top"><span class="brand-mark" aria-hidden="true"></span>Orrery</a>
+    <a class="brand" href="#top" aria-label="Orrery, back to top">Orrery</a>
     <nav class="nav-links" aria-label="Sections">
-      <a href="#system" data-scramble>Planets</a>
-      <a href="#spectrum" data-scramble>Spectrum</a>
-      <a href="#pulse" data-scramble>Pulse</a>
-      <a href="#duel" data-scramble>Duel</a>
+      <a href="#system">Planets</a>
+      <a href="#spectrum">Spectrum</a>
+      <a href="#pulse">Pulse</a>
+      <a href="#duel">Duel</a>
     </nav>
-    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme"><span data-theme-label>Light</span></button>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to the light print"><span data-theme-label>Light print</span></button>
   </header>
 
   <main id="top">
-    <!-- Hero -->
     <section class="hero" data-hero aria-labelledby="hero-title">
       <canvas class="hero-canvas" data-hero-canvas aria-hidden="true"></canvas>
       <div class="hero-copy">
-        <h1 id="hero-title" class="hero-title" data-hero-title>GitHub, in orbit.</h1>
-        <p class="hero-sub">Type a username. Public repos become planets, languages become color, recent pushes pull them closer.</p>
+        <h1 id="hero-title" class="hero-title">Any GitHub profile, drawn as an orrery.</h1>
+        <p class="hero-sub">Type a username. Public repos become planets, and recent pushes pull them closer to the sun.</p>
         <form class="lookup" id="lookup" data-lookup novalidate>
           <label class="field">
             <span class="field-label">GitHub username</span>
             <input name="a" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" required />
           </label>
           <label class="field">
-            <span class="field-label">Versus (optional)</span>
+            <span class="field-label">Compare with (optional)</span>
             <input name="b" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" placeholder="another username" />
           </label>
-          <button class="btn" type="submit" data-launch>Launch</button>
+          <button class="btn" type="submit" data-launch>Draw</button>
         </form>
         <p class="status" role="status" aria-live="polite" data-status></p>
       </div>
     </section>
 
-    <!-- Planets: pinned scene -->
     <section class="system" id="system" data-system aria-labelledby="system-title">
       <div class="system-pin" data-system-pin>
         <div class="system-stage">
@@ -65,51 +64,48 @@
           <p class="hover-tip" data-hover-tip hidden></p>
         </div>
         <div class="system-panel">
-          <h2 id="system-title" class="title" data-title data-text="Planets">Planets</h2>
+          <h2 id="system-title" class="title">Planets</h2>
           <div class="who" data-who></div>
           <article class="repo" data-repo aria-live="polite">
             <h3 class="repo-name" data-repo-name></h3>
             <p class="repo-desc" data-repo-desc></p>
-            <dl class="repo-facts" data-repo-facts></dl>
+            <dl class="specs" data-repo-facts></dl>
           </article>
           <ul class="repo-list" data-repo-list aria-label="Top repositories"></ul>
         </div>
       </div>
     </section>
 
-    <!-- Spectrum -->
     <section class="spectrum" id="spectrum" data-spectrum aria-labelledby="spectrum-title">
       <div class="wrap">
-        <h2 id="spectrum-title" class="title title-xl" data-title data-text="Spectrum">Spectrum</h2>
+        <h2 id="spectrum-title" class="title title-xl">Spectrum</h2>
         <p class="lede" data-spectrum-lede></p>
-        <div class="band" data-band role="img" aria-label="Language share"></div>
+        <div class="band" data-band></div>
         <ul class="legend" data-legend></ul>
       </div>
     </section>
 
-    <!-- Pulse -->
     <section class="pulse" id="pulse" data-pulse aria-labelledby="pulse-title">
       <div class="wrap pulse-grid">
         <div class="pulse-head">
-          <h2 id="pulse-title" class="title title-xl" data-title data-text="Pulse">Pulse</h2>
+          <h2 id="pulse-title" class="title title-xl">Pulse</h2>
           <p class="lede" data-pulse-lede></p>
         </div>
         <div class="pulse-body">
-          <div class="heat" data-heat role="img" aria-label="Public activity heatmap, last 90 days"></div>
+          <div class="heat" data-heat role="img" aria-label="Public activity, last 90 days"></div>
           <dl class="stats" data-stats></dl>
         </div>
       </div>
     </section>
 
-    <!-- Duel -->
     <section class="duel" id="duel" data-duel aria-labelledby="duel-title">
       <div class="wrap">
-        <h2 id="duel-title" class="title title-xl" data-title data-text="Duel">Duel</h2>
+        <h2 id="duel-title" class="title title-xl">Duel</h2>
         <div class="duel-empty" data-duel-empty hidden>
-          <p class="lede">Add a second username and both systems go head to head.</p>
+          <p class="lede">Add a second username and both systems are drawn side by side.</p>
           <form class="rival" data-rival novalidate>
             <label class="field">
-              <span class="field-label">Rival username</span>
+              <span class="field-label">Second username</span>
               <input name="b" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="39" required />
             </label>
             <button class="btn" type="submit">Compare</button>
@@ -131,13 +127,28 @@
   </main>
 
   <footer class="foot">
-    <div class="foot-word" aria-hidden="true">ORRERY</div>
-    <div class="wrap foot-row">
-      <p class="foot-credit">Built by <strong>Nhaajt</strong>. Find the rest of my work at <a href="https://github.com/nhaajtt" rel="noopener">github.com/nhaajtt</a>.</p>
-      <p class="foot-note">Data comes from the GitHub public REST API. Only public repositories and public events are read, so private work never appears. Orrery is an independent tool and is not affiliated with GitHub.</p>
+    <div class="wrap">
+      <div class="titleblock">
+        <div class="tb-cell tb-main">
+          <span class="tb-key">Drawn by</span>
+          <strong class="tb-val">Nhaajt</strong>
+          <a href="https://github.com/nhaajtt" rel="noopener">github.com/nhaajtt</a>
+        </div>
+        <div class="tb-cell">
+          <span class="tb-key">Source</span>
+          <span class="tb-val">GitHub public REST API</span>
+          <span class="tb-note">Only public repositories and events are read. Private work never appears.</span>
+        </div>
+        <div class="tb-cell">
+          <span class="tb-key">Code</span>
+          <a class="tb-val" href="https://github.com/nhaajtt/orrery" rel="noopener">github.com/nhaajtt/orrery</a>
+          <span class="tb-note">Open source. Not affiliated with GitHub.</span>
+        </div>
+      </div>
     </div>
   </footer>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false" data-defs></svg>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
