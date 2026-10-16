@@ -10,7 +10,7 @@ Look up any GitHub username and see the public repositories drawn as an orrery o
 Recent pushes orbit closer to the sun, size follows stars and repo size, and each language has its own
 fill symbol, like the materials on a technical drawing. Add a second username to compare two profiles.
 
-**Live site:** https://orbit-gh.vercel.app
+**Live site:** https://orrery.nhaajt.com
 
 This repository holds two things:
 
